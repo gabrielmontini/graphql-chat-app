@@ -1,1 +1,3 @@
-# graphql-chat-app
+# Graphql-chat-app
+
+Building realtime app with GraphQL subscriptions 
