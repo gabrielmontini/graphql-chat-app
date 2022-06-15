@@ -1,4 +1,5 @@
-const { createServer, createPubSub } = require('graphql-yoga')
+const { createServer } = require('@graphql-yoga/node')
+const { createPubSub } = require('graphql-yoga')
 const typeDefs = require('./schema')
 const resolvers = require('./resolver')
 
