@@ -59,7 +59,6 @@
           entered: false,
         };
       },
-      //second part
       apollo: {
         chats: {
           query: CHATS_QUERY,
@@ -80,15 +79,14 @@
         async sendMessage() {
           const message = this.message;
           this.message = '';
-          console.log(this.username)
-          const response = await this.$apollo.mutate({
+          console.log(this.$apollo)
+          await this.$apollo.mutate ({
             mutation: SEND_MESSAGE_MUTATION,
             variables: {
               from: this.username,
               message,
             },
           });
-          return response;
         },
       },
     };

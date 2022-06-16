@@ -1,32 +1,41 @@
-import { InMemoryCache } from 'apollo-cache-inmemory'
-import { ApolloClient } from 'apollo-client'
-import { split } from '@apollo/client/core'
-import { HttpLink } from 'apollo-link-http'
-import { getMainDefinition } from 'apollo-utilities'
-import VueApollo from 'vue-apollo'
-import { createApp, h } from 'vue'
-import App from './App.vue'
+import { split, ApolloClient, HttpLink, InMemoryCache } from '@apollo/client/core'
+import { getMainDefinition } from '@apollo/client/utilities';
 import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import { createClient } from "graphql-ws";
+import { createApp, h } from 'vue'
+import App from './App.vue'
+import { createApolloProvider } from '@vue/apollo-option'
 
 const httpLink = new HttpLink({
-    uri: 'http://localhost:4000'
+    uri: 'http://localhost:4000/graphql'
 })
 
 const wsLink = new GraphQLWsLink(
     createClient({
-      url: "ws://localhost:4000/subscriptions",
+        url: 'ws://localhost:4000/graphql',
+        //   connectionParams: () => {
+        //     const session = getSession();
+        //     if (!session) {
+        //       return {};
+        //     }
+        //     return {
+        //       Authorization: `Bearer ${session.token}`,
+        //     };
+        //   },
     }),
-  );
+);
 
 const link = split(
     ({ query }) => {
-        const { kind, operation } = getMainDefinition(query)
-        return kind === 'OperationDefinition' && operation === 'subscription'
+        const definition = getMainDefinition(query);
+        return (
+            definition.kind === 'OperationDefinition' &&
+            definition.operation === 'subscription'
+        );
     },
     wsLink,
-    httpLink
-)
+    httpLink,
+);
 
 const apolloClient = new ApolloClient({
     link,
@@ -34,13 +43,12 @@ const apolloClient = new ApolloClient({
     connectToDevTools: true
 })
 
-const apolloProvider = new VueApollo({
-    defaultClient: apolloClient
+const apolloProvider = createApolloProvider({
+    defaultClient: apolloClient,
 })
 
 const app = createApp({
-    apolloProvider,
     render: () => h(App),
 })
-app.config.productionTip = false
+app.use(apolloProvider)
 app.mount('#app')
